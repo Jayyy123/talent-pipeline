@@ -16,6 +16,8 @@ Open http://localhost:3000
 
 `npm test` for the checks.
 
+`npm run seed` adds four more sample people into the database. Safe to run again. It skips anyone already in the file. That is separate from the Load more button on the page.
+
 ## What it uses
 
 Next.js (app router), React, TypeScript, Tailwind.
@@ -24,16 +26,18 @@ The data is a sqlite file, `data/pipeline.db`. First run creates it and drops in
 
 ## API
 
-`GET /api/candidates`
+`GET /api/candidates?q=chioma&stage=Interview&limit=5&offset=0`
+
+`POST /api/candidates` with `{ "name": "Ada Okonkwo", "role": "Recruiter", "stage": "Sourced" }`
 
 `PATCH /api/candidates/:id` with `{ "stage": "Interview" }`
 
-Stages: Sourced, Screening, Interview, Hired. Anything else comes back as 400.
+Stages: Sourced, Screening, Interview, Hired. A bad stage on a write comes back as 400.
 
-The page loads the list from the API. Name search and the stage dropdown filter that list in the browser. Changing a stage is a PATCH, then the row updates from the response.
+The page loads the list with GET. Search, the stage cards, and Load more call that same GET. Five rows at a time. Load more sends a higher offset and appends the next rows from the database. The cards are counts for the whole table. Clicking one sets the stage filter and fetches again. Name, role, and stage changes are PATCH. Add is POST. A slow response shows a skeleton. `npm run seed` only inserts extra sample rows. It is not the Load more button.
 
-I used `node:sqlite` instead of Postgres or Prisma. One table, and the task said a local db is fine. Node prints an experimental warning when sqlite opens. The SQL is normal.
+I used `node:sqlite` instead of Postgres or Prisma.
 
 ## More time
 
-Postgres with the same table. Search in SQL if the list gets big. Login. Add a candidate, a note, and who moved the stage.
+Postgres with the same queries. Login. A note, and who moved the stage. Offset paging is fine here. A keyset would be the next step if the table got large.
